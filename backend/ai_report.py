@@ -3,7 +3,7 @@ import os
 import openai
 
 # Configure OpenAI API key explicitly (or via env var)
-openai.api_key = "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"
+openai.api_key = "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"
 
 def read_pentest_report():
     """Reads penetration test results from Module 2 explicitly."""
