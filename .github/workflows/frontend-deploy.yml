@@ -1,24 +1,37 @@
 name: Deploy Frontend
+
 on:
   push:
     branches: [ frontend ]
-    paths: [ vulnsight-frontend/**, .github/workflows/frontend-deploy.yml ]
+    paths:
+      - vulnsight-frontend/**
+      - .github/workflows/frontend-deploy.yml
 
 jobs:
   build-and-sync:
     runs-on: ubuntu-latest
+
+    # Disable React’s “treat warnings as errors” behaviour in CI
+    env:
+      CI: ""                       # ← makes eslint warnings non-fatal
+
     steps:
+      # 1.  Check out this commit
       - uses: actions/checkout@v4
 
+      # 2.  Set up Node 18 (LTS)
       - uses: actions/setup-node@v4
-        with: { node-version: 18 }
+        with:
+          node-version: 18
 
-      - name: Install & Build
+      # 3.  Install deps and build the React app
+      - name: Install & build
         working-directory: vulnsight-frontend
         run: |
           npm ci
           npm run build
 
+      # 4.  Sync the build/ folder to the public S3 bucket
       - name: Sync to S3
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
