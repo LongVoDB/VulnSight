@@ -1,0 +1,31 @@
+name: Deploy Frontend
+on:
+  push:
+    branches: [ frontend ]
+    paths: [ vulnsight-frontend/**, .github/workflows/frontend-deploy.yml ]
+
+jobs:
+  build-and-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 18 }
+
+      - name: Install & Build
+        working-directory: vulnsight-frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Sync to S3
+        uses: jakejarvis/s3-sync-action@v0.5.1
+        with:
+          args: --acl public-read --delete
+        env:
+          AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION:            ${{ secrets.AWS_REGION }}
+          AWS_S3_BUCKET:         ${{ secrets.S3_BUCKET }}
+          SOURCE_DIR:            "vulnsight-frontend/build"
