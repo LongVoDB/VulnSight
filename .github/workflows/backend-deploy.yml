@@ -1,25 +1,17 @@
 name: Deploy Backend
-
 on:
   push:
     branches: [ main ]
-    paths: [ backend/**, .github/workflows/backend-deploy.yml ]
-
+    paths:   [ backend/**, .github/workflows/backend-deploy.yml ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
     defaults:
-      run:
-        working-directory: backend
-
+      run: { working-directory: backend }
     steps:
       - uses: actions/checkout@v4
-
-      - name: Zip source
-        run: zip -r ../backend.zip .
-
-      - name: Deploy to Elastic Beanstalk
-        uses: einaregilsson/beanstalk-deploy@v21
+      - run: zip -r ../backend.zip .
+      - uses: einaregilsson/beanstalk-deploy@v21
         with:
           aws_access_key:  ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
